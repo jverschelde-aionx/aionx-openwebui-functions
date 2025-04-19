@@ -21,8 +21,10 @@ class Pipe:
     This class provides methods to list available models and to process
     chat completion requests with OpenRouter's API.
     """
+
     class Valves(BaseModel):
         """Configuration parameters for the OpenRouter API connection."""
+
         OPENROUTER_API_BASE_URL: str = Field(default="https://openrouter.ai/api/v1")
         OPENROUTER_API_KEY: str = Field(
             default="",
@@ -192,6 +194,7 @@ class Pipe:
         Raises:
             httpx.HTTPStatusError: If the HTTP request fails.
         """
+
         def construct_chunk(content: str) -> str:
             """
             Construct a properly formatted SSE chunk.
@@ -203,15 +206,17 @@ class Pipe:
                 str: Formatted SSE chunk.
             """
             chunk_data = {
-                'id': data.get('id', ''),
-                'object': 'chat.completion.chunk',
-                'created': int(time.time()),
-                'model': body.get("model", "unknown"),
-                'choices': [{
-                    'index': 0,
-                    'delta': {'content': content, 'role': 'assistant'},
-                    'finish_reason': None
-                }]
+                "id": data.get("id", ""),
+                "object": "chat.completion.chunk",
+                "created": int(time.time()),
+                "model": body.get("model", "unknown"),
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {"content": content, "role": "assistant"},
+                        "finish_reason": None,
+                    }
+                ],
             }
             return f"data: {json.dumps(chunk_data)}\n\n"
 
@@ -228,7 +233,6 @@ class Pipe:
                 # State tracking for thinking/reasoning responses
                 # -1: not started, 0: thinking, 1: answered
                 thinking_state = -1
-
                 async for line in response.aiter_lines():
                     if not line.startswith("data: "):
                         continue
